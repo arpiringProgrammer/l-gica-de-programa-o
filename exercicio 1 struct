@@ -1,0 +1,178 @@
+/*
+1) Considerando as declarações a seguir
+typedef struct{
+float nota;
+int falta;
+}tipo_bimestre;
+typedef tipo_bimestre tipo_bimestres[4];
+typedef struct{
+char nome[30];
+tipo_bimestres bimestres;
+}tipo_disciplina;
+typedef tipo_disciplina tipo_disciplinas[10];
+typedef struct{
+int matricula;
+char nome[50];
+tipo_disciplinas disciplinas;
+}tipo_aluno;
+typedef tipo_alunos tipo_alunos[30];
+tipo_alunos v;
+Faça um programa que preencha as informações dos 30 alunos (variável v) e em seguida mostre o
+menu
+1 – Alunos Aprovados
+2 – Alunos Reprovados
+3 – Listagem
+4 – Fim
+Caso a opção selecionada seja:
+1 – Mostrar a matrícula, Nome e média final de todos os alunos que possuam nota maior ou igual a 60
+em todoas as disciplinas.
+2 – Mostrar a matrícula, nome e o nome e a média final de todas as disiciplinas dos aalunos que
+possuam média(soma da nota em cada bimestre) inferior a 60 em pelo menos uma disciplina.
+3 – Mostra o nome e a matrícula de todos os alunos
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#define BIMESTRES 2
+#define DISCIPLINAS 2
+#define ALUNOS 2
+#define ONE 1
+
+typedef struct {
+   float nota;
+   int falta;
+} tipo_bimestre;
+
+typedef tipo_bimestre tipo_bimestres[BIMESTRES];
+
+typedef struct {
+   char nome[30];
+   tipo_bimestres bimestres;
+} tipo_disciplina;
+
+typedef tipo_disciplina tipo_disciplinas[DISCIPLINAS];
+
+typedef struct {
+   int matricula;
+   char nome[50];
+   tipo_disciplinas disciplinas;
+} tipo_aluno;
+
+typedef tipo_aluno tipo_alunos[ALUNOS];
+
+void fillStudents(tipo_aluno *aluno) {
+   printf("inform the name of the student:\n");
+   fgets(aluno->nome, sizeof(aluno->nome), stdin);
+
+   printf("inform your registration:\n");
+   scanf("%d", &(aluno->matricula));
+   getchar(); // Limpa o buffer
+
+   for (int i = 0; i < DISCIPLINAS; i++) {
+      printf("inform the name of the discipline:\n");
+      fgets(aluno->disciplinas[i].nome, sizeof(aluno->disciplinas[i].nome), stdin);
+
+      for (int j = 0; j < BIMESTRES; j++) {
+         printf("inform your %d grade:\n", ONE + j);
+         scanf("%f", &(aluno->disciplinas[i].bimestres[j].nota));
+         printf("report your absences.\n");
+         scanf("%d", &(aluno->disciplinas[i].bimestres[j].falta));
+         getchar(); // Limpa o buffer
+      }
+   }
+}
+
+void approvedStudents(tipo_alunos aluno) {
+   float grade = 0.0;
+   int failed = 0,end = 0;
+   for (int i = 0; i < ALUNOS; i++) {
+      end = 0;
+      for (int j = 0; j < DISCIPLINAS; j++) {
+         for (int k = 0; k < BIMESTRES; k++) {
+            grade = aluno[i].disciplinas[j].bimestres[k].nota;
+            if (grade < 60) {
+               failed++;
+            }
+         }
+         if (failed == 0 && end == 0) {
+            printf("student: %sregistration: %d \n\n", aluno[i].nome, aluno[i].matricula);
+            end++;
+         }
+      }
+   }
+}
+
+void failedStudents(tipo_alunos aluno) {
+   float grade = 0.0;
+   int failed = 0,end = 0;
+   for (int i = 0; i < ALUNOS; i++) {
+      end = 0;
+      for (int j = 0; j < DISCIPLINAS; j++) {
+         for (int k = 0; k < BIMESTRES; k++) {
+            grade = aluno[i].disciplinas[j].bimestres[k].nota;
+            if (grade < 60) {
+               failed++;
+            }
+         }
+         if (failed > 0 && end == 0) {
+            printf("student: %sregistration: %d \n\n\n", aluno[i].nome, aluno[i].matricula);
+            end++;
+         }
+      }
+   }
+}
+
+void listStudents(tipo_alunos alunos) {
+    printf("\n--- Listagem Completa dos Alunos ---\n");
+    for (int i = 0; i < ALUNOS; i++) {
+        printf("\nAluno: %s \nMatrícula: %d\n", alunos[i].nome, alunos[i].matricula);
+        for (int j = 0; j < DISCIPLINAS; j++) {
+            printf("Disciplina: %s\n", alunos[i].disciplinas[j].nome);
+            for (int k = 0; k < BIMESTRES; k++) {
+                printf("  Bimestre %d - Nota: %.2f | Faltas: %d\n", k + 1, alunos[i].disciplinas[j].bimestres[k].nota, alunos[i].disciplinas[j].bimestres[k].falta);
+            }
+        }
+    }
+    printf("------------------------------------\n");
+}
+
+void menu(tipo_alunos aluno) {
+   int choice = 0;
+   do {
+      printf("1. Alunos aprovados\n");
+      printf("2. Alunos reprovados\n");
+      printf("3. Listagem\n");
+      printf("4. Fim\n");
+      scanf("%d", &choice);
+
+      switch (choice) {
+      case 1:
+         approvedStudents(aluno);
+         break;
+      case 2:
+         failedStudents(aluno);
+         break;
+      case 3:
+         listStudents(aluno);
+         break;
+      case 4:
+         printf("Fim.\n");
+         break;
+      default:
+         printf("Valor inválido.\n");
+         break;
+      }
+   } while (choice >= 1 && choice <= 3);
+}
+
+int main() {
+   tipo_aluno aluno[ALUNOS];
+   for (int i = 0; i < ALUNOS; i++) {
+      printf("inform the name of the %d student:\n", ONE + i);
+      fillStudents(&aluno[i]);
+   }
+
+   menu(aluno);
+
+   return 0;
