@@ -1,0 +1,174 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define FIVE 5
+
+/*
+2) Faça um programa que possua o menu:
+1 – Cadastro
+2 – Consulta
+3 – Excluir
+4 – Fim
+caso a opção selecionada seja:
+1 – Permitir que se cadastre a matrícula, nome 
+e salário de no máximo 30 funcionários.
+Obs.:
+a) A matrícula é única
+b) Aceitar apenas valores positivos para o campo salário
+2 – Pedir ao usuário uma valor e mostrar os dados do 
+funcionário que possua matrícula igual ao valor
+fornecido.
+3 – Pedir ao usuário uma valor e excluir o funcionário 
+que possua matrícula igual ao valor fornecido.
+4 – Listar os dados de todos os funcionários
+*/
+
+int quantity = 0;
+
+typedef struct {
+   int registerInfo;
+   char name[30];
+   float salary;
+}List;
+
+List pointer[FIVE];
+
+int checkReg(int reg) {
+   for(int i = 0; i < quantity; i++) {
+      if(reg == pointer[i].registerInfo) {
+         return 1;
+      }
+   }
+   return 0;
+}
+
+int registerList() {
+   int reg = 0;
+   char name[30];
+   float salary = 0;
+   if(quantity >= FIVE) {
+      printf("The list is already full!!.\n");
+      return 1;
+   }
+   
+   printf("inform your registration.\n");
+   scanf("%d",&reg);
+   
+   
+   if(checkReg(reg)) {
+      printf("the registration already exists!\n");
+      return 1;
+   }
+   
+   getchar();
+   
+   printf("inform your name:\n");
+   fgets(name,sizeof(name),stdin);
+   name[strcspn(name,"\n")] = '\0';
+   
+   do {
+      printf("inform your salary:(it cant be bellow zero!)");
+      scanf("%f",&salary);
+   }while(salary < 0);
+   
+   pointer[quantity].registerInfo = reg;
+   strcpy(pointer[quantity].name,name);
+   pointer[quantity].salary = salary;
+   
+   quantity++;
+   printf("employee sucessfully registered!\n\n");
+}
+
+
+
+int checkList() {
+   int reg = 0;
+   if(quantity == 0) {
+      printf("The list is empty!\n\n");
+      return 0;
+   }
+   
+   printf("inform your registration:\n");
+   scanf("%d",&reg);
+   
+   for(int i = 0; i < quantity; i++) {
+      if(reg == pointer[i].registerInfo){
+         printf("registration:\t %d \n",pointer[i].registerInfo);
+         printf("name:\t %s \n",pointer[i].name);
+         printf("salary:\t %f \n",pointer[i].salary);
+         printf("\n\n\n");
+         return 0;
+      }
+   }
+   
+   printf("The registration you informed does not exist!\n\n");
+   return 1;
+}
+
+int delete() {
+   int reg = 0;
+   if(quantity == 0) {
+      printf("The list is empty!!\n");
+      return 0;
+   }
+   
+   printf("inform your registration:\n");
+   scanf("%d",&reg);
+   
+   for(int i = 0; i < quantity; i++) {
+      if(reg == pointer[i].registerInfo) {
+         pointer[i] = pointer[quantity - 1];
+         quantity--;
+         printf("deletion complete!!\n");
+         return 0;
+      }
+   }
+   
+   printf("the registration does not exist!\n");
+   return 0;
+}
+
+int startMenu() {
+   int choice = 0;
+   
+   do {
+      printf("choose your option:\n");
+      printf("1 - registration:\n");
+      printf("2 - consulting:\n");
+      printf("3 - deletion:\n");
+      printf("4 - end:\n");
+      scanf("%d",&choice);
+      
+  switch(choice) {
+     case 1:
+        registerList();
+     break;
+     
+   case 2:
+      checkList();
+   break;
+   
+   case 3:
+      delete();
+   break;
+   
+   case 4:
+      printf("ending the programming.\n");
+   break;
+   
+   default:
+      printf("invalid values!\n");
+   break;
+  }
+   }while(choice != 4);
+}
+
+
+int main()
+{
+    startMenu();
+
+  return 0;
+}
+
+
