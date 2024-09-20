@@ -1,0 +1,130 @@
+/*
+3) Faça um programa que solucione o problema de preenchimento das vagas nos cursos de uma
+universidade. Cada aluno que prestou vestibular em uma determinada Universidade, originou um
+registro com os seguintes campos : número de inscrição, nota geral obtida (de 0.0 a 10.0) e código do
+curso para o qual ele se candidatou. A universidade oferece 5 cursos com 50 vagas cada. O problema
+consiste em distribuir os candidatos entre os cursos, de acordo com a nota final e com a opção
+apresentada pelo candidato. Em caso de empate, será atendido primeiro, o candidato com menor
+número de inscrição. Sabe-se que o final de dados sera determinado pelo campo de inscrição negativo
+ou por ter alcancado o número de 30000 candidatos, que é o maximo permitido pelo regulamento da
+universidade. Observação : os resultados dos alunos sao lidos independente de sua classificação, por
+isso a distribuição deve tambem ordenar os alunos nos cursos
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_CANDIDATES 30000
+#define MAX_COURSES 5
+#define MAX_VACANCIES 50
+
+// Estrutura para armazenar os dados de cada aluno
+typedef struct {
+    int registrationNumber;  // Número de inscrição do aluno
+    float grade;             // Nota geral obtida
+    int courseCode;          // Código do curso para o qual se candidatou
+} Student;
+
+// Estrutura para armazenar as informações dos cursos
+typedef struct {
+    int courseCode;         // Código do curso
+    int vacancies;          // Vagas restantes no curso
+    Student candidates[MAX_VACANCIES]; // Lista de candidatos aceitos
+    int candidateCount;     // Contador de candidatos aceitos
+} Course;
+
+// Função de comparação para ordenar os alunos por nota e número de inscrição
+int compareStudents(const void *a, const void *b) {
+    Student *studentA = (Student *)a;
+    Student *studentB = (Student *)b;
+
+    // Comparar primeiro pela nota (decrescente)
+    if (studentA->grade > studentB->grade)
+        return -1;
+    if (studentA->grade < studentB->grade)
+        return 1;
+
+    // Em caso de empate, comparar pelo número de inscrição (crescente)
+    if (studentA->registrationNumber < studentB->registrationNumber)
+        return -1;
+    if (studentA->registrationNumber > studentB->registrationNumber)
+        return 1;
+
+    return 0;
+}
+
+int main() {
+    Student students[MAX_CANDIDATES];
+    Course courses[MAX_COURSES] = {
+        {101, MAX_VACANCIES, {{0}}, 0}, // Curso 1
+        {102, MAX_VACANCIES, {{0}}, 0}, // Curso 2
+        {103, MAX_VACANCIES, {{0}}, 0}, // Curso 3
+        {104, MAX_VACANCIES, {{0}}, 0}, // Curso 4
+        {105, MAX_VACANCIES, {{0}}, 0}  // Curso 5
+    };
+
+    int studentCount = 0;
+
+    // Leitura dos dados dos alunos
+    while (studentCount < MAX_CANDIDATES) {
+        int registrationNumber;
+        float grade;
+        int courseCode;
+
+        printf("Informe o número de inscrição (ou número negativo para encerrar): ");
+        scanf("%d", &registrationNumber);
+
+        if (registrationNumber < 0) {
+            break; // Parar a entrada de dados quando o número for negativo
+        }
+
+        printf("Informe a nota obtida (0.0 a 10.0): ");
+        scanf("%f", &grade);
+
+        printf("Informe o código do curso (101 a 105): ");
+        scanf("%d", &courseCode);
+
+        // Preencher o registro do aluno
+        students[studentCount].registrationNumber = registrationNumber;
+        students[studentCount].grade = grade;
+        students[studentCount].courseCode = courseCode;
+
+        studentCount++;
+    }
+
+    // Ordenar os alunos pela nota e número de inscrição
+    qsort(students, studentCount, sizeof(Student), compareStudents);
+
+    // Distribuir os alunos entre os cursos
+    for (int i = 0; i < studentCount; i++) {
+        int courseIndex = -1;
+
+        // Encontrar o curso correspondente ao código do curso
+        for (int j = 0; j < MAX_COURSES; j++) {
+            if (courses[j].courseCode == students[i].courseCode) {
+                courseIndex = j;
+                break;
+            }
+        }
+
+        // Se houver vagas no curso, adicionar o aluno
+        if (courseIndex != -1 && courses[courseIndex].vacancies > 0) {
+            courses[courseIndex].candidates[courses[courseIndex].candidateCount] = students[i];
+            courses[courseIndex].candidateCount++;
+            courses[courseIndex].vacancies--;
+        }
+    }
+
+    // Exibir a lista de alunos aprovados em cada curso
+    for (int i = 0; i < MAX_COURSES; i++) {
+        printf("\n\nCurso %d - %d candidatos aceitos:\n", courses[i].courseCode, courses[i].candidateCount);
+        for (int j = 0; j < courses[i].candidateCount; j++) {
+            printf("Inscrição: %d, Nota: %.2f\n",
+                   courses[i].candidates[j].registrationNumber,
+                   courses[i].candidates[j].grade);
+        }
+    }
+
+    return 0;
+}
+
