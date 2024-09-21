@@ -1,0 +1,297 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define THIRTY 30
+#define TWENTY 20
+#define MAX_EMPLOYEES 1000
+
+/*
+4) Faça um programa que mostre o menu:
+1 – Cadastro de Departamento
+2 - Cadastro de Funcionários
+3 – Consulta de Funcionários
+4 – Funcionários de um Departamento
+5 – Excluir Funcionário
+6 – Excluir Departamento
+7 – Fim
+Caso a opção selecionada seja;
+Cadastro de Departamento; cadastrar o código, nome e sigla de no máximo 20 departamentos. O
+código é único e o nome não pode ser vazio.
+Cadastro de Funcionários; cadastrar a matrícula, nome, data de nascimento, cpf, salário e código de
+departammento de no máximo 1000 funcionários.
+Obs.;
+a) A matrícula é única;
+b) O nome não pode ser vazio;
+c) Validar a data de nascimento e cpf;
+d) O salário deve ser maior que zero;
+e) Aceitar para o campo código do departamento apenas departamentos já cadastrados.
+Consulta de Funcionários: mostrar a matrícula, nome e nome do departamentos dos funcionários que
+tenham o nome com um determinado prefixo.
+Funcionários de um Departamento: mostrar os dados dos funcionários pertencentes a um
+determinado departamento.
+Excluir Funcionário: excluir um funcionário a partir de sua matrícula.
+Excluir Departamento: excluir um departamento a partir de seu código bem como todos os
+funcionários pertencentes ao departamento excluído.
+*/
+
+typedef struct {
+    int depCode;
+    char name[THIRTY];
+    char acronym[THIRTY];
+} department;
+
+typedef struct {
+    int registration;
+    char name[THIRTY];
+    char birthDate[11];
+    char cpf[15];
+    float salary;
+    int depCode;
+} employee;
+
+department departments[TWENTY]; // Array para departamentos
+employee employees[MAX_EMPLOYEES]; // Array para funcionários
+
+int departmentSize = 0;
+int employeeSize = 0;
+
+int departmentRegister() {
+    int depCod;
+    
+  if (departmentSize == TWENTY) {
+      printf("A lista de departamentos está cheia!\n");
+      return 1;
+  }
+  
+  printf("Informe o código do departamento:\n");
+  scanf("%d", &depCod);
+  
+  // Verifica se o código já existe
+  for (int i = 0; i < departmentSize; i++) {
+      if (depCod == departments[i].depCode) {
+          printf("O código informado já existe!\n");
+          return 1;
+      }
+  }
+  
+  departments[departmentSize].depCode = depCod;
+  
+  printf("Informe o nome do departamento:\n");
+  scanf(" %[^\n]", departments[departmentSize].name);
+  
+  printf("Informe a sigla do departamento:\n");
+  scanf(" %[^\n]", departments[departmentSize].acronym);
+  
+  departmentSize++;
+  
+  return 0;
+}
+
+int employeeRegister() {
+    int code, foundIt = 0;
+    
+  if (employeeSize == MAX_EMPLOYEES) {
+      printf("A lista de funcionários está cheia!\n");
+      return 1;
+  }
+  
+  printf("Informe o código do departamento do funcionário:\n");
+  scanf("%d", &code);
+  
+  // Verifica se o departamento existe
+  for (int i = 0; i < departmentSize; i++) {
+      if (code == departments[i].depCode) {
+          foundIt = 1;
+          printf("Departamento: %s, Sigla: %s\n", departments[i].name, departments[i].acronym);
+          break;
+      }
+  }
+  
+  if (!foundIt) {
+      printf("O departamento informado não existe!\n");
+      return 1;
+  }
+  
+  employees[employeeSize].depCode = code;
+  
+  printf("Informe o nome do funcionário:\n");
+  scanf(" %[^\n]", employees[employeeSize].name);
+  
+  printf("Informe a data de nascimento (dd/mm/aaaa):\n");
+  scanf("%s", employees[employeeSize].birthDate);
+  
+  printf("Informe o CPF:\n");
+  scanf("%s", employees[employeeSize].cpf);
+  
+  printf("Informe o salário:\n");
+  scanf("%f", &employees[employeeSize].salary);
+  
+  printf("Informe a matrícula do funcionário:\n");
+  scanf("%d", &employees[employeeSize].registration);
+  
+  employeeSize++;
+  
+  return 0;
+}
+
+int employeeConsultation() {
+    char name[THIRTY];
+    int found = 0;
+    
+  printf("Informe o prefixo do nome do funcionário:\n");
+  scanf(" %[^\n]", name);
+  
+  size_t prefixLength = strlen(name);
+  
+  for (int i = 0; i < employeeSize; i++) {
+      if (strncmp(employees[i].name, name, prefixLength) == 0) {
+          // Encontra o departamento correspondente
+          for (int j = 0; j < departmentSize; j++) {
+              if (employees[i].depCode == departments[j].depCode) {
+                  printf("Matrícula: %d, Nome: %s, Departamento: %s\n", 
+                      employees[i].registration, employees[i].name, departments[j].name);
+                  found = 1;
+              }
+          }
+      }
+  }
+  
+  return found ? 0 : 1;
+}
+
+int employeesDepartment() {
+    int code;
+    int found = 0;
+    
+  printf("Informe o código do departamento:\n");
+  scanf("%d", &code);
+  
+  for (int i = 0; i < departmentSize; i++) {
+      if (code == departments[i].depCode) {
+          printf("Funcionários do Departamento %s:\n", departments[i].name);
+          
+          for (int j = 0; j < employeeSize; j++) {
+              if (employees[j].depCode == code) {
+                  printf("Matrícula: %d, Nome: %s, Data de Nascimento: %s, CPF: %s, Salário: %.2f\n",
+                      employees[j].registration, employees[j].name, employees[j].birthDate,
+                      employees[j].cpf, employees[j].salary);
+                  found = 1;
+              }
+          }
+      }
+  }
+  
+  if (!found) {
+      printf("Nenhum funcionário encontrado para o departamento informado.\n");
+  }
+  
+  return 0;
+}
+
+int deleteEmployee() {
+    int reg;
+    
+  printf("Informe a matrícula do funcionário a ser excluído:\n");
+  scanf("%d", &reg);
+  
+  for (int i = 0; i < employeeSize; i++) {
+      if (reg == employees[i].registration) {
+          for (int j = i; j < employeeSize - 1; j++) {
+              employees[j] = employees[j + 1];
+          }
+          employeeSize--;
+          printf("Funcionário excluído com sucesso!\n");
+          return 0;
+      }
+  }
+  
+  printf("A matrícula informada não existe!\n");
+  return 1;
+}
+
+int deleteDepartment() {
+    int code, exist = 0;
+    
+  printf("Informe o código do departamento a ser excluído:\n");
+  scanf("%d", &code);
+  
+  // Excluir funcionários do departamento
+  for (int i = 0; i < employeeSize; i++) {
+      if (employees[i].depCode == code) {
+          for (int j = i; j < employeeSize - 1; j++) {
+              employees[j] = employees[j + 1];
+          }
+          employeeSize--;
+          i--; // Para não pular o próximo funcionário
+      }
+  }
+  
+  // Excluir o departamento
+  for (int i = 0; i < departmentSize; i++) {
+      if (departments[i].depCode == code) {
+          for (int j = i; j < departmentSize - 1; j++) {
+              departments[j] = departments[j + 1];
+          }
+          departmentSize--;
+          exist = 1;
+          break;
+      }
+  }
+  
+  if (!exist) {
+      printf("O código informado não existe!\n");
+      return 1;
+  }
+  
+  printf("Departamento e seus funcionários foram excluídos com sucesso!\n");
+  return 0;
+}
+
+int menu() {
+    int choice;
+    
+  do {
+      printf("1 - Cadastro de Departamento\n");
+      printf("2 - Cadastro de Funcionários\n");
+      printf("3 - Consulta de Funcionários\n");
+      printf("4 - Funcionários de um Departamento\n");
+      printf("5 - Excluir Funcionário\n");
+      printf("6 - Excluir Departamento\n");
+      printf("7 - Fim\n");
+      scanf("%d", &choice);
+      
+  switch (choice) {
+      case 1:
+          departmentRegister();
+          break;
+      case 2:
+          employeeRegister();
+          break;
+      case 3:
+          employeeConsultation();
+          break;
+      case 4:
+          employeesDepartment();
+          break;
+      case 5:
+          deleteEmployee();
+          break;
+      case 6:
+          deleteDepartment();
+          break;
+      case 7:
+          printf("Encerrando o programa.\n");
+          break;
+      default:
+          printf("Opção inválida! Tente novamente.\n");
+  }
+  } while (choice != 7);
+  
+  return 0;
+}
+
+int main() {
+    menu();
+    return 0;
+}
