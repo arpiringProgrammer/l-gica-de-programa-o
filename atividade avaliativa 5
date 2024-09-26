@@ -1,0 +1,220 @@
+/*
+Considerando os arquivos
+Departamento
+codigo Nome
+10 TI
+5 RH
+20 ADM
+Funcionario
+Matricula Nome Salário CodDep
+100 Malu 10000,00 5
+50 Amanda 3000,00 5
+200 Pedro 30000,00 10
+4 Lara 2000,00 10
+230 Le 120000,00 10
+Mostrar um Relatóri0 com o layout abaixo
+Departamento: RH
+Matrícula Nome Salário
+100 Malu 10000,00
+50 Amanda 3000,00
+Total de Funcionários: 2
+Departamento: TI
+Matrícula Nome Salário
+200 Pedro 30000,00
+4 Lara 2000,00
+230 Le 120000,00
+Total de Funcionários: 3
+Para ferar tal relátorio, considere que o arquivode funcionário está ordenado pelo campo codDep.
+Você deve leroarquivo de funcionáriouma única vez.
+*/
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#define THIRTY 30
+
+
+
+typedef struct {
+   int registration;
+   char name[THIRTY];
+   float salary;
+   int codDep;
+}employee;
+
+typedef struct {
+   int codDep;
+   char depName[THIRTY];
+   employee *point;
+}department;
+
+
+department type_dept[THIRTY];
+employee type_emp[THIRTY];
+
+int totalEmployee = 0;
+int totalDepartment = 0;
+
+void takeOffEnter(char *c) {
+   if(c[strlen(c) - 1] == '\n') {
+      c[strlen(c) - 1] = '\0';
+   }
+}
+
+int research(FILE *dep,int reg) {
+   department d;
+   int position = 0;
+   fseek(dep,0,SEEK_SET);
+   while(fread(&d,sizeof(department),1,dep) == 1) {
+      if(reg == d.codDep) {
+         return position;
+      } else {
+         position++;
+      }
+   }
+   return -1;
+}
+
+void registration(FILE *emp,FILE *dep) {
+   employee e;
+   department d;
+   int dept = 0,choice = 2;
+   do {
+      printf("please inform your department ID:\n");
+      scanf("%d",&dept);
+      
+      if(research(dep,dept) == -1) {
+         d.codDep = dept;
+         e.codDep = dept;
+         printf("inform your registration:\n");
+         scanf("%d",&e.registration);
+         getchar();
+         
+         printf("inform the name of the department:\n");
+         fgets(d.depName,sizeof(d.depName),stdin);
+         takeOffEnter(d.depName);
+         
+         printf("inform your personal name:\n");
+         fgets(e.name,sizeof(e.name),stdin);
+         takeOffEnter(e.name);
+         
+         printf("inform your salary:\n");
+         scanf("%f",&e.salary);
+         
+         fseek(emp,0,SEEK_END);
+         fwrite(&e,sizeof(employee),1,emp);
+         
+         fseek(dep,0,SEEK_END);
+         fwrite(&d,sizeof(department),1,dep);
+         
+         printf("registration completed!!!\n");
+         totalEmployee++;
+         totalDepartment++;
+         choice = 2;
+         
+      } else {
+         printf("department:%s\n",d.depName);
+         printf("inform your registration:\n");
+         scanf("%d",&e.registration);
+         getchar();
+         
+         
+         printf("inform your personal name:\n");
+         fgets(e.name,sizeof(e.name),stdin);
+         takeOffEnter(e.name);
+         
+         printf("inform your salary:\n");
+         scanf("%f",&e.salary);
+         
+         fseek(emp,0,SEEK_END);
+         fwrite(&e,sizeof(employee),1,emp);
+         
+         
+         printf("registration completed!!!\n");
+         totalEmployee++;
+         choice = 2;
+      }
+      
+      printf("want to register again??? 1 - yes, 2 - no.\n");
+      scanf("%d",&choice);
+   }while(choice == 1);
+   
+   if(choice != 1 && choice != 2) {
+      printf("invalid option!!!\n");
+   }
+}
+
+void listEmployeeDepartment(FILE *emp,FILE *dep) {
+   employee e;
+   department d;
+   int totalWorkers = 0,count = 0;
+   
+   fseek(dep,0,SEEK_SET);
+   
+   while(fread(&d,sizeof(department),1,dep) == 1) {
+      count++;
+      printf("------------------------------------------\n");
+      printf("\t%dº department:\n",count);
+      printf("\tDepartment:%s \n\n",d.depName);
+      fseek(emp,0,SEEK_SET);
+      while(fread(&e,sizeof(employee),1,emp) == 1) {
+         if(e.codDep == d.codDep) {
+            printf("\tregistration:%d \n\tname:%s \n\tsalary:%f \n\n",e.registration,e.name,e.salary);
+            totalWorkers++;
+         }
+      }
+      printf("\ttotal workers:%d\n",totalWorkers);
+      printf("------------------------------------------\n");
+      printf("\n\n\n\n\n");
+      totalWorkers = 0;
+   }
+}
+
+
+int main() {
+   
+   int choice = 0;
+    
+    FILE *dep = fopen("department.dat","rb+");
+    FILE *emp = fopen("employee.dat","rb+");
+    
+    if(dep == NULL) {
+       dep = fopen("department.dat","wb+");
+    }
+    
+    if(emp == NULL) {
+       emp = fopen("employee.dat","wb+");
+    }
+    
+    if(dep == NULL || emp == NULL) {
+       printf("an error ocurried while trying to open the file!!\n");
+       return 1;
+    }
+    
+    do {
+       printf("1 - registration:\n");
+       printf("2 - layout:\n");
+       printf("3 - end:\n");
+       scanf("%d",&choice);
+       
+       switch(choice) {
+          case 1:
+            registration(emp,dep);
+            break;
+          case 2:
+            listEmployeeDepartment(emp,dep);
+            break;
+          case 3:
+            break;
+          default:
+            printf("invalid choice!!!\n");
+            break;
+       }
+       
+    }while(choice != 3);
+    
+    fclose(dep);
+    fclose(emp);
+
+    return 0;
+}
