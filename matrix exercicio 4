@@ -1,0 +1,62 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+/*
+4) Ler valores inteiros para a matriz A3x5. Gerar e imprimir o vetor  SL (soma das 3 linhas)  onde
+ cada elemento é a soma dos elementos de uma linha da matriz A e o vetor SC (soma das 5 colunas).
+ Faça o trecho que gera os vetores SL e SC separado (laços de repetição) da entrada e da saída de
+ dados. 
+*/
+
+int main()
+{
+   int matrix[3][5];
+   int SL[3];
+   int SC[5];
+   int sumLine = 0;
+   int sumColumn = 0;
+   int count = 0;
+   
+   printf("inform the values of the matrix:\n");
+   
+   for(int i = 0; i <= 2; i++) {
+      for(int j = 0; j <= 4; j++) {
+         printf("linha %d coluna %d:\t",i + 1,j + 1);
+         scanf("%d",&matrix[i][j]);
+         printf("\n");
+      }
+   }
+   
+   //adding the values of the lines in the matrix
+   for(int i = 0; i <= 2; i++) {
+      for(int j = 0; j <= 4; j++) {
+         sumLine += matrix[i][j];
+      }
+      SL[i] = sumLine;
+      sumLine = 0;
+   }
+   
+   //adding the values of the columns in the matrix
+   for(int i = 0; i < 5; i++) {
+      for(int j = 0; j < 3; j++) {
+         sumColumn += matrix[j][i];
+      }
+      SC[count] = sumColumn;
+      count++;
+      sumColumn = 0;
+   }
+   
+   printf("\n\nprinting the sum of the lines:\n");
+   
+   for(int i = 0; i < 3; i++) {
+      printf("%d \t",SL[i]);
+   }
+   
+   printf("\n\nprinting the sum of columns:\n");
+   
+   for(int j = 0; j < 5; j++) {
+      printf("%d \t",SC[j]);
+   }
+
+    return 0;
+}
