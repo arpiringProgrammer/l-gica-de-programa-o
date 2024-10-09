@@ -1,0 +1,76 @@
+/*
+ 1) Criar um algoritmo que entre com valores inteiros para uma matriz m 3 x 3 e imprima a matriz
+ final, conforme mostrado a seguir: 
+
+123                    741
+456  a matrix gira 90° 852
+789                    963
+
+
+ 2) Criar um algoritmo que entre com valores inteiros para uma matriz m 3 x 3 e imprima a matriz
+ final, conforme mostrado a seguir: 
+ 
+123                    987
+456 a matrix gira 180° 654
+789                    321
+
+ 3) Criar um algoritmo que entre com valores inteiros para uma matriz m 3 x 3 e imprima a matriz
+ final, conforme mostrado a seguir:
+
+123                    369
+456 a matrix gira 270° 258
+789                    147
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+   int matrix[3][3],sum = 0;
+   
+  for(int i = 0; i < 3; i++){
+     for(int j = 0; j < 3; j++){
+        sum++;
+        matrix[i][j] = sum;
+     }
+  }
+  
+  printf("printing normal matrix:\n");
+  
+  for(int i = 0; i < 3; i++) {
+     for(int j = 0; j < 3; j++) {
+        printf("%d \t",matrix[i][j]);
+     }
+     printf("\n\n");
+  }
+  
+  printf("turning 90°:\n");
+  
+  for(int i = 0; i <= 2; i++) {
+     for(int j = 2; j >= 0; j--) {
+        printf("%d \t",matrix[j][i]);
+     }
+     printf("\n\n");
+  }
+  
+  printf("turning 180:\n");
+  
+  for(int i = 2; i >= 0 ; i--) {
+     for(int j = 2; j >= 0 ; j--) {
+        printf("%d \t",matrix[i][j]);
+     }
+     printf("\n\n");
+  }
+  
+  printf("turning 270:\n");
+  
+  for(int i = 2; i >= 0 ; i--) {
+     for(int j = 0; j <= 2 ; j++) {
+        printf("%d \t",matrix[j][i]);
+     }
+     printf("\n\n");
+  }
+
+  return 0;
+}
