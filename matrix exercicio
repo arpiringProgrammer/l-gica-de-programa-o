@@ -1,0 +1,124 @@
+/*
+9) Uma empresa que possui 20 funcionários, guarda a quantidade vendida por cada um de seus
+funcionários em cada um dos 7 dias dasemana. Faça um programa que:
+a) Mostre a quantidade vendida por cada funcionário;
+b) Mostre em qual ou quais dias da semana cada funcionário vendeu mais;
+c) O nome do funcionário ou funcionários com maior valor de venda na semana;
+d) Para cada dia da semana, a quantidade vendida por cada funcionário.
+*/
+
+
+#include <stdio.h>
+#define TWENTY 20
+
+enum DiasSemana {
+    DOMINGO,
+    SEGUNDA,
+    TERCA,
+    QUARTA,
+    QUINTA,
+    SEXTA,
+    SABADO,
+    TOTAL_DIAS
+};
+
+void informWorker(int matrix[TWENTY][7], char name[TWENTY][50]) {
+    const char *diasSemanas[TOTAL_DIAS] = {
+        "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+    };
+
+    for (int i = 0; i < TWENTY; i++) {
+        printf("\nWorker %dº:\n", i + 1);
+        printf("Inform the name of the worker: ");
+        setbuf(stdin, NULL);
+        fgets(name[i], 50, stdin);
+        for (int j = 0; j < TOTAL_DIAS; j++) {
+            printf("Number of sales on %s: ", diasSemanas[j]);
+            scanf("%d", &matrix[i][j]);
+        }
+    }
+    printf("\n\n----------------------------------------\n\n");
+}
+
+void bestSellingDays(int matrix[TWENTY][7], char name[TWENTY][50]) {
+    const char *diasSemanas[TOTAL_DIAS] = {
+        "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+    };
+
+    printf("\n===== Best Selling Days for Each Worker =====\n");
+    for (int i = 0; i < TWENTY; i++) {
+        int bestDay = matrix[i][0];
+        printf("\nWorker: %s", name[i]);
+        for (int j = 0; j < TOTAL_DIAS; j++) {
+            if (bestDay < matrix[i][j]) {
+                bestDay = matrix[i][j];
+            }
+        }
+        printf("Best sales day(s): ");
+        for (int j = 0; j < TOTAL_DIAS; j++) {
+            if (bestDay == matrix[i][j]) {
+                printf("%s ", diasSemanas[j]);
+            }
+        }
+        printf("\n");
+    }
+    printf("\n\n----------------------------------------\n\n");
+}
+
+void bestSellerWorker(int matrix[TWENTY][7], char name[TWENTY][50]) {
+    int totalSales = 0;
+    int vector[TWENTY];
+    int mostSales = 0;
+
+    printf("\n===== Best Sellers Workers =====\n");
+    for (int i = 0; i < TWENTY; i++) {
+        totalSales = 0;
+        for (int j = 0; j < TOTAL_DIAS; j++) {
+            totalSales += matrix[i][j];
+        }
+        vector[i] = totalSales;
+        if (mostSales < totalSales) {
+            mostSales = totalSales;
+        }
+    }
+    
+    printf("Best seller(s):\n");
+    for (int i = 0; i < TWENTY; i++) {
+        if (vector[i] == mostSales) {
+            printf("%s", name[i]);
+        }
+    }
+    printf("\nTotal sales of the best seller(s): %d\n", mostSales);
+    printf("\n\n----------------------------------------\n\n");
+}
+
+void quantityPerDay(int matrix[TWENTY][7], char name[TWENTY][50]) {
+    const char *daysWeek[TOTAL_DIAS] = {
+        "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+    };
+
+    printf("\n===== Quantity Sold Per Day =====\n");
+    for (int i = 0; i < TWENTY; i++) {
+        printf("\nWorker: %s", name[i]);
+        printf("Sales during the week:\n");
+        for (int j = 0; j < TOTAL_DIAS; j++) {
+            printf("%s: %d sales\n", daysWeek[j], matrix[i][j]);
+        }
+        printf("\n--------------------------------\n");
+    }
+}
+
+int main() {
+    int matrix[TWENTY][7];
+    char name[TWENTY][50];
+
+    informWorker(matrix, name);
+
+    quantityPerDay(matrix, name);
+
+    bestSellerWorker(matrix, name);
+
+    bestSellingDays(matrix, name);
+
+    return 0;
+}
