@@ -1,0 +1,154 @@
+#include <stdio.h>
+#include <string.h>
+
+#define ARM 5  // Number of warehouses
+#define PROD 10  // Number of products
+
+/*
+Program Objectives:
+a) Receive 10 product names and store them in an array (name must be unique).
+b) Store the stock of each product in each of the 5 warehouses (5x10 matrix).
+c) Store the price of each product in an array.
+
+Additionally, calculate and display:
+• Total items stored in each warehouse.
+• Total items of each product across all warehouses.
+• The product name and the warehouse with the largest quantity of that product.
+• Each product’s name and its total value (sum of the quantities in all warehouses).
+*/
+
+// Function to receive and store product information
+void inputProductInfo(char names[PROD][50], int stock[ARM][PROD], float prices[PROD], int *productCount) {
+    char productName[50];
+    int allowDuplicate, i, j;
+
+    for (i = 0; i < PROD; i++) {
+        printf("Enter the name of product %d: ", i + 1);
+        setbuf(stdin, NULL);
+        fgets(productName, sizeof(productName), stdin);
+        productName[strcspn(productName, "\n")] = 0;  // Remove newline character
+
+        // Check for duplicate product names
+        allowDuplicate = 0;
+        for (j = 0; j < *productCount; j++) {
+            if (strcmp(names[j], productName) == 0) {
+                printf("This product name already exists! Please enter a different name.\n");
+                i--;
+                allowDuplicate = 1;
+                break;
+            }
+        }
+
+        if (!allowDuplicate) {
+            strcpy(names[i], productName);
+
+            // Input product price
+            printf("Enter the price of %s: ", names[i]);
+            scanf("%f", &prices[i]);
+
+            // Input stock for each warehouse
+            printf("Enter stock quantities for %s in %d warehouses:\n", names[i], ARM);
+            for (j = 0; j < ARM; j++) {
+                printf("Warehouse %d: ", j + 1);
+                scanf("%d", &stock[j][i]);
+            }
+
+            (*productCount)++;
+        }
+    }
+}
+
+// Function to print the product information
+void printProductInfo(char names[PROD][50], int stock[ARM][PROD], float prices[PROD], int productCount) {
+    for (int i = 0; i < productCount; i++) {
+        printf("\nProduct: %s\n", names[i]);
+        printf("Price: $%.2f\n", prices[i]);
+        printf("Stock per warehouse:\n");
+        for (int j = 0; j < ARM; j++) {
+            printf("  Warehouse %d: %d units\n", j + 1, stock[j][i]);
+        }
+    }
+}
+
+// Function to calculate total items stored in each warehouse
+void totalItemsPerWarehouse(int stock[ARM][PROD], int productCount) {
+    for (int i = 0; i < ARM; i++) {
+        int totalStock = 0;
+        for (int j = 0; j < productCount; j++) {
+            totalStock += stock[i][j];
+        }
+        printf("Total items in Warehouse %d: %d\n", i + 1, totalStock);
+    }
+}
+
+// Function to calculate total items stored for each product across all warehouses
+void totalItemsPerProduct(char names[PROD][50], int stock[ARM][PROD], int productCount) {
+    for (int i = 0; i < productCount; i++) {
+        int totalStock = 0;
+        for (int j = 0; j < ARM; j++) {
+            totalStock += stock[j][i];
+        }
+        printf("Total items of product %s: %d\n", names[i], totalStock);
+    }
+}
+
+// Function to find the warehouse with the largest quantity for each product
+void largestStockPerProduct(char names[PROD][50], int stock[ARM][PROD], int productCount) {
+    for (int i = 0; i < productCount; i++) {
+        int maxStock = stock[0][i];
+        int warehouseIndex = 0;
+        for (int j = 1; j < ARM; j++) {
+            if (stock[j][i] > maxStock) {
+                maxStock = stock[j][i];
+                warehouseIndex = j;
+            }
+        }
+        printf("Product %s has the largest quantity in Warehouse %d with %d units.\n", names[i], warehouseIndex + 1, maxStock);
+    }
+}
+
+// Function to calculate and print the total value of each product (sum of quantities in all warehouses)
+void totalValuePerProduct(char names[PROD][50], int stock[ARM][PROD], int productCount) {
+    for (int i = 0; i < productCount; i++) {
+        int totalStock = 0;
+        for (int j = 0; j < ARM; j++) {
+            totalStock += stock[j][i];
+        }
+        printf("Total stock value of product %s: %d units\n", names[i], totalStock);
+    }
+}
+
+// Main function to manage the program flow
+void manageInventory() {
+    char names[PROD][50];
+    int stock[ARM][PROD] = {0};
+    float prices[PROD];
+    int productCount = 0;
+
+    // Input product information
+    inputProductInfo(names, stock, prices, &productCount);
+
+    // Display product information
+    printProductInfo(names, stock, prices, productCount);
+
+    // Total items in each warehouse
+    printf("\nTotal items stored in each warehouse:\n");
+    totalItemsPerWarehouse(stock, productCount);
+
+    // Total items per product across all warehouses
+    printf("\nTotal items stored per product:\n");
+    totalItemsPerProduct(names, stock, productCount);
+
+    // Warehouse with the largest quantity per product
+    printf("\nWarehouse with the largest quantity per product:\n");
+    largestStockPerProduct(names, stock, productCount);
+
+    // Total value of each product
+    printf("\nTotal value of each product (sum of warehouses):\n");
+    totalValuePerProduct(names, stock, productCount);
+}
+
+int main() {
+    manageInventory();
+    return 0;
+}
