@@ -1,0 +1,229 @@
+#include <stdio.h>
+#define SIX 6  // Define o número de tipos de notas
+#define TWO 2  // Define o número de colunas no banco (valor da nota e quantidade)
+
+/*
+18) Faça um programa para simular o controle de emissão de cédulas de um caixa eletrônico. O
+seguinte menu deve ser apresentado:
+Terminal de Auto-Atendimento (modo Administrador)
+1 - Efetuar Saque
+2 - Relatório de cédulas disponíveis
+3 - Valor total disponível
+4 - Efetuar reposição de cédulas
+5 - Sair do programaEscolha uma opção:
+O programa deve trabalhar com uma matriz 6 x 2, responsável por guardar a quantidade de cédulas
+disponível de cada valor. Veja a figura a seguir:
+Coluna 0,
+valor das
+cédulas
+.
+A opção 1 do menu deve fazer uma simulação de saque no caixa eletrônico. Quando o usuário
+escolher esta opção, o programa deverá solicitar o valor do saque e em seguida “efetuar o saque”,
+50 200
+20 100
+10 500
+5 120
+2 80
+1 560
+C o l u
+q u a n
+d e c a
+c é d u
+mostrando na tela quantas cédulas de cada valor foram emitidas. Por exemplo, se o usuário solicitar
+um saque no valor de R$ 784,00, o programa deverá mostrar:
+Cédulas de 50: 15
+Cédulas de 20: 1
+Cédulas de 10: 1
+Cédulas de 2: 2
+Saque efetuado com sucesso!
+Obs.
+a) O programa deve fazer o cálculo de quais cédulas serão emitidas visando emitir o menor número
+de notas possível, dando prioridade para as cédulas de maior valor. Para simular o saque, o
+programa deve fazer a devida atualização na matriz de quantidades de cédulas disponíveis.
+b) Se as notas de algum valor acabarem, o programa deve tentar efetuar o saque através das demais
+notas existentes, caso seja possível, sempre visando emitir o menor número de cédulas.
+c) Se não for possível a realização do saque solicitado com a quantidade de notas existentes, o
+programa deverá emitir a mensagem “Saque não realizado por falta de cédulas”.
+d) O programa não deverá permitir que mais de 30 cédulas sejam emitidas, impossibilitando os
+saques nesses casos.
+Opção 2: o programa deverá mostrar a matriz de quantidades de cédulas, informando quantas notas
+estão disponíveis para cada valor no compartimento.
+Opção 3: o programa deverá apresentar o valor total em reais disponível no caixa.
+Opção 4: deve possibilitar que o usuário faça a “reposição” das cédulas, ou seja, que o usuário
+informe os valores da segunda coluna da matriz de quantidades.
+*/
+
+// Função para realizar a retirada de cédulas
+int takeOutBallouts(int bank[SIX][TWO], int money) {
+   int temp[SIX], i = 0;
+   int end = 0, thirty = 0;  // 'end' para controle de término e 'thirty' para limitar o número de cédulas retiradas
+   
+   // Copia a quantidade de cédulas disponíveis no banco para o array temporário 'temp'
+   for (i = 0; i < SIX; i++) {
+      temp[i] = bank[i][1];
+   }
+   i = 0;
+   
+   // Loop para processar a retirada de cédulas até que o dinheiro seja retirado ou não seja possível prosseguir
+   do {
+      // Verifica se ainda há cédulas suficientes e se o limite de 30 cédulas não foi atingido
+      if (money >= bank[i][0] && temp[i] != 0 && thirty < 30) {
+         money -= bank[i][0];  // Subtrai o valor da nota do montante
+         temp[i] -= 1;  // Diminui a quantidade de cédulas
+         thirty++;  // Contador de cédulas retiradas
+      } 
+      // Verifica se não há mais cédulas disponíveis ou se o limite de 30 cédulas foi atingido
+      else if ((temp[SIX - 1] == 0 && money > 0) || thirty == 30) {
+         return -1;  // Retorna erro se não for possível continuar o saque
+      } 
+      // Se não houver mais cédulas a serem retiradas ou o dinheiro foi completamente retirado
+      else if (temp[SIX - 1] == 0 || money == 0) {
+         end = 1;  // Sinaliza que o saque foi concluído
+      }
+   
+      // Passa para o próximo valor de cédula se o valor atual não for suficiente ou não houver mais cédulas
+      if (money < bank[i][0] || temp[i] == 0) {
+         i++;
+      }
+      
+   } while (end == 0);  // Continua até que o saque termine ou haja um erro
+   
+   // Atualiza o banco de dados de cédulas com a quantidade restante após o saque
+   for (i = 0; i < SIX; i++) {
+      bank[i][1] = temp[i];
+   }
+   
+   return 0;  // Retorna sucesso
+}
+
+// Função para efetuar o processo de saque de dinheiro
+int withdrawMoney(int bank[SIX][TWO]) {
+   int money = 0, result = 0;
+   printf("Digite o valor que deseja sacar:\n");
+   scanf("%d", &money);
+   
+   // Verifica se o valor é inválido (zero ou negativo)
+   if (money <= 0) {
+      printf("Valores negativos ou zero não são permitidos!\n");
+      return -1;
+   }
+   
+   // Chama a função de retirada de cédulas
+   result = takeOutBallouts(bank, money);
+     
+   // Verifica se houve erro na retirada de cédulas
+   if (result == -1) {
+      printf("Dinheiro insuficiente ou transação bloqueada!\n");
+      return -1;
+   }
+   
+   printf("Saque realizado com sucesso!\n");
+   return 0;
+}
+
+// Função para exibir as cédulas disponíveis
+void displayAvailableNotes(int bank[SIX][TWO]) {
+   printf("\nCédulas disponíveis:\n");
+   printf("Valor - Quantidade\n");
+   // Percorre o array 'bank' e exibe o valor de cada cédula e sua quantidade
+   for (int i = 0; i < SIX; i++) {
+      printf("R$%d - %d\n", bank[i][0], bank[i][1]);
+   }
+}
+
+// Função para mostrar o total de dinheiro disponível no banco
+void showTotalAvailable(int bank[SIX][TWO]) {
+   int sum = 0;
+   
+   // Calcula o total somando o valor das cédulas vezes a quantidade disponível
+   for (int i = 0; i < SIX; i++) {
+      sum += bank[i][0] * bank[i][1];
+   }
+   printf("\nTotal disponível: R$%d\n", sum);
+}
+
+// Função para repor cédulas no banco
+int restockBanknotes(int bank[SIX][TWO]) {
+   int num = 0, quantity = 0;
+   printf("\nQual cédula deseja repor?\n");
+   printf("Opções (Valor - Quantidade):\n");
+   // Exibe as opções de cédulas para reposição
+   for (int i = 0; i < SIX; i++) {
+      printf("R$%d - %d\n", bank[i][0], bank[i][1]);
+   }
+   
+   scanf("%d", &num);  // Recebe o valor da cédula que deseja repor
+   
+   // Busca a cédula informada e realiza a reposição
+   for (int i = 0; i < SIX; i++) {
+      if (num == bank[i][0]) {
+         printf("Digite a quantidade a ser reposta:\n");
+         scanf("%d", &quantity);
+         bank[i][1] += quantity;  // Atualiza a quantidade de cédulas
+         printf("Reposição concluída com sucesso!\n");
+         return 0;
+      }
+   }
+   printf("O valor informado não está disponível!\n");
+   return -1;
+}
+
+// Função principal que inicia o programa e exibe o menu
+void startProgram() {
+   // Inicializa o banco com valores e quantidades de cédulas
+   int bank[SIX][TWO] = {
+      {50, 200},
+      {20, 100},
+      {10, 500},
+      {5, 120},
+      {2, 80},
+      {1, 560}
+   }, choice = 0;
+   
+   // Exibe o menu de opções até o usuário escolher sair
+   do {
+      printf("\n--- Terminal de Autoatendimento ---\n");
+      printf("Escolha uma opção:\n");
+      printf("1 - Sacar dinheiro\n");
+      printf("2 - Mostrar cédulas disponíveis\n");
+      printf("3 - Mostrar total disponível\n");
+      printf("4 - Repor cédulas\n");
+      printf("5 - Sair\n");
+      printf("Sua escolha: ");
+      scanf("%d", &choice);
+      
+      // Executa a ação de acordo com a escolha do usuário
+      switch (choice) {
+         case 1:
+            withdrawMoney(bank);  // Saque de dinheiro
+            break;
+            
+         case 2:
+            displayAvailableNotes(bank);  // Exibe cédulas disponíveis
+            break;
+            
+         case 3:
+            showTotalAvailable(bank);  // Exibe total disponível
+            break;
+            
+         case 4:
+            restockBanknotes(bank);  // Reposição de cédulas
+            break;
+            
+         case 5:
+            printf("Encerrando o terminal. Até logo!\n");  // Sai do programa
+            break;
+            
+         default:
+            printf("Opção inválida, tente novamente.\n");  // Opção inválida
+            break;
+      }
+      
+   } while (choice != 5);  // Loop até a opção de saída ser escolhida
+}
+
+// Função principal que chama o início do programa
+int main() {
+   startProgram();  // Inicia o terminal de autoatendimento
+   return 0;
+}
