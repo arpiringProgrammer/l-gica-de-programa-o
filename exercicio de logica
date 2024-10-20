@@ -1,0 +1,112 @@
+/*
+O jogo da trilha consta de um tabuleiro com 80 casas, numeradas de 1 a 80. A cada round todo os jogadores, um de cada vez que 
+tiverem direito, jogam dois dados () que podem somar de 2 12 e avançam o número de casas a partir da sua posição atual, 
+correspondente a soma dos dados. Vence o jogo o jogador que ultrapassar a ultima casa (80) primeiro faça um programa que leia o 
+nome(que é único) de cada jogador. O Número de jogadores deve ser maior ou igual a dois e menor ou igual a 10 preencha um vetor 
+com as 10 posiçoes que indicam armadilhas. Os valores que podem ser armazenados devem estar no intervalo fechado de 1 a 80 e não 
+pode possuir valores repetidos. Caso o jogador chegue em uma casa que significa armadilha, o mesmo fica uma rodada de castigo, 
+ou seja, sem poder jogar os dados.
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define TEN 10
+#define EIGHTY 80
+
+int main() {
+    int trap[10] = { 10, 20, 30, 40, 50, 60, 70, 15, 25, 35 };
+    int quantity = 0, player = -1, value = 0, gameOver = -1;
+
+  // Definir a quantidade de jogadores
+  do {
+      printf("values under 2 or over 10 are not allowed!!!\n");
+      printf("inform the quantity of players:\n");
+      scanf("%d", &quantity);
+      getchar();  // Consumir o '\n' deixado pelo scanf
+  } while (quantity < 2 || quantity > 10);
+
+  // Alocar memória para os jogadores, posições e bloqueios
+  char** players = (char**)malloc(sizeof(char*) * quantity);
+  int* positions = (int*)malloc(sizeof(int) * quantity);
+  int* blocked = (int*)malloc(sizeof(int) * quantity);
+
+  // Obter o nome dos jogadores
+  for (int i = 0; i < quantity; i++) {
+      players[i] = (char*)malloc(30 * sizeof(char)); // Alocando memória para cada string
+      printf("inform the name of the %d player:\n", i + 1);
+      fgets(players[i], 30, stdin);
+      players[i][strcspn(players[i], "\n")] = '\0'; // Remover o '\n' do nome
+      positions[i] = 0;
+      blocked[i] = 0;  // Inicialmente, nenhum jogador está bloqueado
+  }
+
+  // Início do loop do jogo
+  do {
+      int firstDice = 0, secondDice = 0;
+
+  // Atualiza o jogador (ciclo circular)
+  player = (player + 1) % quantity;
+
+  // Verifica se o jogador está bloqueado
+  if (blocked[player] > 0) {
+      blocked[player]--;  // Reduz o contador de bloqueio do jogador
+      printf("Player %s is blocked for this round!\n", players[player]);
+      continue;  // Pular o turno do jogador
+  }
+
+  // Entrada dos dados do jogador
+  printf("Player %d (%s), please roll the dice:\n", player + 1, players[player]);
+
+  while (firstDice < 1 || firstDice > 6) {
+      printf("First dice (1-6): ");
+      scanf("%d", &firstDice);
+  }
+
+  while (secondDice < 1 || secondDice > 6) {
+      printf("Second dice (1-6): ");
+      scanf("%d", &secondDice);
+  }
+
+  // Soma os valores dos dados à posição do jogador
+  value = positions[player];
+  int sum = firstDice + secondDice + value;
+
+  // Verifica se o jogador caiu em uma armadilha
+  for (int i = 0; i < TEN; i++) {
+      if (sum == trap[i]) {
+          printf("Player %s is trapped and will miss the next round!\n", players[player]);
+          blocked[player] = 1;  // Jogador ficará bloqueado por 1 rodada
+      }
+  }
+
+  // Atualiza a posição do jogador se ele não estiver bloqueado
+  if (blocked[player] == 0) {
+      positions[player] = sum;
+  }
+
+  // Verifica se algum jogador atingiu ou ultrapassou o valor de 80
+  for (int i = 0; i < quantity; i++) {
+      if (positions[i] >= EIGHTY) {
+          gameOver = i;
+          break;
+      }
+  }
+
+  } while (gameOver == -1);
+
+  // Fim do jogo
+  printf("Game over!!!\n");
+  printf("And the winner of the game is %s!!!\n", players[gameOver]);
+  printf("Congratulations!!!\n");
+
+  // Libera a memória alocada
+  for (int i = 0; i < quantity; i++) {
+      free(players[i]);
+  }
+  free(players);
+  free(positions);
+  free(blocked);
+
+  return 0;
+}
