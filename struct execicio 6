@@ -1,0 +1,144 @@
+/*
+6) Para a eleição do Diretório Acadêmico, inscreveram-se 20 chapas. Cada chapa é descrita pelos
+seguintes dados:
+• Nome da chapa (é único)
+• Nome do responsável
+• Número de votos (inicialmente igual a zero)
+Construa um programa que permita:
+a) O cadastro das chapas.
+b) Ler os votos alunos. Para cada voto lido, some 1 ao número de votos da chapa correspondente.
+c) Após a leitura dos votos, exiba no vídeo o nome da chapa, o nome do responsável e o número
+de votos da chapa campeã. Caso tenha ocorrido empate, exiba a mensagem Chapas empatadas
+com n votos, sendo n o número de votos.
+*/
+
+arquivo.c:
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "Failed.h"
+#define PLATE 20
+#define NOMBRE 1000
+
+
+
+static void takeEnterOff(char string[]) {
+	if (string[strlen(string) - 1] == '\n') {
+		string[strlen(string) - 1] = '\0';
+	}
+}
+
+void registeringCandidates() {
+	for (int i = 0; i < PLATE; i++) {
+		printf("inform the name of the %d plate:\n", i + 1);
+		setvbuf(stdin, NULL, _IONBF, 0);
+		fgets(dir[i].plateName,sizeof(dir[i].plateName), stdin);
+		setvbuf(stdin, NULL, _IONBF, 0);
+		takeEnterOff(dir[i].plateName);
+
+		printf("inform the name of the %d candidate:\n",i + 1);
+		setvbuf(stdin, NULL, _IONBF, 0);
+		fgets(dir[i].name, sizeof(dir[i].name), stdin);
+		setvbuf(stdin, NULL, _IONBF, 0);
+		takeEnterOff(dir[i].name);
+
+		printf("inform the number of the candidate:\n");
+		scanf("%d", &dir[i].votesNumber);
+		dir[i].quantityVotes = 0;
+	}
+}
+
+void registeringVotes() {
+	int vote = -1,i = 0,counted = 0;
+
+	while(1) {
+		printf("cadidates avaliable to vote:\n");
+		for (int i = 0; i < PLATE; i++) {
+			printf("Número do candidato: %d, Nome da chapa: %s, Responsável: %s\n",
+			dir[i].votesNumber, dir[i].plateName, dir[i].name);
+		}
+		printf("which candidate do you want to vote:\n");
+		scanf("%d", &vote);
+
+		if (vote == 0) {
+			break;
+		}
+
+		for (i = 0; i < PLATE && counted == 0; i++) {
+			if (vote == dir[i].votesNumber) {
+				dir[i].quantityVotes++;
+				counted = 1;
+			}
+		}
+
+		if (counted == 0) {
+			printf("the candidate number you informed does not exist!!\n");
+		}
+		counted = 0;
+	};
+}
+
+void showingResults() {
+	int winner = dir[0].quantityVotes;
+
+	for (int i = 0; i < PLATE; i++) {
+		if (winner < dir[i].quantityVotes) {
+			winner = dir[i].quantityVotes;
+		}
+	}
+
+	for (int i = 0; i < PLATE; i++) {
+		if (winner == dir[i].quantityVotes) {
+			printf("the winner or the winners of the election is/are:\n");
+			printf("%s\n", &dir[i].name);
+		}
+	}
+}
+
+
+int main() {
+
+	registeringCandidates();
+	registeringVotes();
+	showingResults();
+	
+    return 0;
+}
+
+arquivo.h
+
+#ifndef INCLUDED_H_FAILED
+#define INCLUDED_H_FAILED
+#define PLATE 20
+#define NOMBRE 1000
+
+/*
+6) Para a eleição do Diretório Acadêmico, inscreveram-se 20 chapas. Cada chapa é descrita pelos
+seguintes dados:
+• Nome da chapa (é único)
+• Nome do responsável
+• Número de votos (inicialmente igual a zero)
+Construa um programa que permita:
+a) O cadastro das chapas.
+b) Ler os votos alunos. Para cada voto lido, some 1 ao número de votos da chapa correspondente.
+c) Após a leitura dos votos, exiba no vídeo o nome da chapa, o nome do responsável e o número
+de votos da chapa campeã. Caso tenha ocorrido empate, exiba a mensagem Chapas empatadas
+com n votos, sendo n o número de votos.
+*/
+
+typedef struct {
+	char plateName[NOMBRE];
+	char name[NOMBRE];
+	int votesNumber;
+	int quantityVotes;
+}Directory;
+
+Directory dir[PLATE];
+
+void registeringCandidates();
+void registeringVotes();
+void showingResults();
+
+
+#endif //INCLUDED_H_FAILED
